@@ -2,6 +2,8 @@ import express from 'express';
 import carros2024 from './tabeladecarros.js'; // Presumo que você tenha esse arquivo
 // Não precisa importar 'req' e 'res' de 'express/lib', apenas use 'express'
 
+import { modeloCarro, modeloAtualizacaoCarro } from './validacao.js'
+
 const app = express();
 
 app.use(express.json());
@@ -25,9 +27,22 @@ app.get('/:sigla', (req, res) => {
 // Rota POST para adicionar um novo carro
 app.post('/', (req, res) => {
     const novoCarro = req.body; // Obtendo os dados do corpo da requisição
+
+    //JOI
+
+    const { error } = modeloCarro.validate(novoCarro);
+        if ( error ) {
+
+            res.status (400).send(error);
+            return;
+        }
+    
     carros2024.push(novoCarro); // Adicionando o novo carro à lista
-    res.status(200).send(novoCarro); // Retornando o carro adicionado com status 200
+    res.status(201).send(novoCarro); // Retornando o carro adicionado com status 200
 });
+
+//JOi
+
 
 // Rota PUT para atualizar um carro existente
 app.put('/:sigla', (req, res) => {
@@ -37,7 +52,17 @@ app.put('/:sigla', (req, res) => {
     if (!carroSelecionado) {
         res.status(404).send('Não existe um carro com a sigla informada!');
         return;
+    };
+
+    //JOI
+
+    const{ error } = modeloAtualizacaoCarro.validate (req.body); // aqui ele verifica se tem a sigla no Json
+    if(error) {
+// se houver erro no modelo/validação retorna erro.
+        res.status (400).send(error);
+        return;
     }
+    
 
     const campos = Object.keys(req.body); // Obtendo os campos a serem atualizados
     for (let campo of campos) {
