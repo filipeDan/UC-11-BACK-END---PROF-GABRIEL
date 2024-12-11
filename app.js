@@ -27,7 +27,10 @@ app.get('/:sigla', (req, res) => {
 // Rota POST para adicionar um novo carro
 app.post('/', (req, res) => {
     const novoCarro = req.body; // Obtendo os dados do corpo da requisição
-
+    const carroExiste = carros2024.find(carro => carro.sigla === novoCarro.sigla);
+    if (carroExiste) {
+        return res._construct(400).send('Já existe um carro cadastrado com essa sigla');
+    }
     //JOI
 
     const { error } = modeloCarro.validate(novoCarro);
@@ -96,3 +99,4 @@ app.delete('/:sigla', (req, res) => {
 // Iniciando o servidor na porta 3000
 app.listen(3000, () => console.log("Servidor rodando com sucesso na porta 3000"));
 
+// node app.js para rodar   
